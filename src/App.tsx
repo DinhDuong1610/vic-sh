@@ -23,6 +23,7 @@ interface Group {
     deTai: string;
     tongDiem: number;
     xepHang: number;
+    diemBGK?: number;
 }
 
 function App() {
@@ -403,12 +404,10 @@ function App() {
                         {isRacing ? 'ĐANG TỔNG HỢP...' : '🏆 KẾT QUẢ CHUNG CUỘC 🏆'}
                     </Title>
 
-                    {/* BIỂU ĐỒ CỘT RESPONSIVE */}
                     <div className="chart-container">
                         {groups.map((g, idx) => {
                             const score = displayScores[g.tenNhom] || 0;
-                            const maxScore = Math.max(...Object.values(displayScores), 10); // Lấy max để làm mốc
-                            // Tính chiều cao phần trăm (mẹo: nếu đang chạy race thì lấy max 100, còn xong rồi thì lấy max score + 10%)
+                            const maxScore = Math.max(...Object.values(displayScores), 10);
                             const baseMax = isRacing ? 100 : (maxScore * 1.1);
                             const heightPercent = (score / baseMax) * 100;
 
@@ -422,14 +421,12 @@ function App() {
 
                             return (
                                 <div key={idx} className={`chart-bar-wrapper ${rankClass}`}>
-                                    {/* CỘT ĐIỂM */}
                                     <div className="chart-bar" style={{ height: `${Math.max(heightPercent, 8)}%` }}>
                                         <div className="score-float">{isRacing ? Math.floor(score) : score.toFixed(1)}</div>
                                     </div>
 
                                     {!isRacing && icon && <div className="medal-icon">{icon}</div>}
 
-                                    {/* KHU VỰC TÊN NHÓM: Cố định chiều cao để không bị lệch */}
                                     <div className="bar-label-container">
                                         <div className="bar-label">{g.tenNhom}</div>
                                     </div>
@@ -438,7 +435,6 @@ function App() {
                         })}
                     </div>
 
-                    {/* BẢNG KẾT QUẢ CHI TIẾT */}
                     {!isRacing && (
                         <div className="card-glass animate__animated animate__fadeInUp" style={{ marginTop: 30 }}>
                             <Table dataSource={[...groups].sort((a, b) => a.xepHang - b.xepHang)} rowKey="tenNhom" pagination={false}
