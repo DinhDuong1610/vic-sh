@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Card, Button, Input, Form, Table, Tag,
     message, Modal, Typography, Row, Col, InputNumber, Spin
@@ -57,11 +57,13 @@ function App() {
                 setScreen('MENU');
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         const interval = setInterval(checkDataStatus, 5000);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
 
     const checkDataStatus = async () => {
