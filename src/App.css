@@ -1,0 +1,260 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+@import 'animate.css';
+
+/* --- CẤU TRÚC CHUNG & BACKGROUND --- */
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+  overflow-x: hidden;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+#root {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* --- LOGO CLB --- */
+.clb-logo {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
+  transition: transform 0.3s;
+}
+
+.clb-logo:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* --- GLASSMORPHISM CARD --- */
+.card-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  padding: 30px;
+  transition: all 0.3s ease;
+}
+
+.card-glass:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.3);
+}
+
+/* --- TYPOGRAPHY --- */
+.title-gradient {
+  background: linear-gradient(to right, #121fcf 0%, #cf1512 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800 !important;
+  font-size: 2.2rem !important;
+  text-transform: uppercase;
+  margin-bottom: 10px !important;
+  letter-spacing: 1px;
+}
+
+.subtitle {
+  color: #555;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+/* --- CHART / BIỂU ĐỒ --- */
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  /* Fix: Kéo giãn để các wrapper cao bằng nhau */
+  gap: 15px;
+  height: 500px;
+  /* Chiều cao cố định cho khung biểu đồ */
+  padding-bottom: 20px;
+  padding-top: 40px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  margin-top: 20px;
+}
+
+.chart-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  /* Đẩy mọi thứ xuống đáy */
+  align-items: center;
+  width: 80px;
+  /* Width cố định */
+  height: 100%;
+  /* Full chiều cao cha */
+  position: relative;
+}
+
+.chart-bar {
+  width: 100%;
+  border-radius: 15px 15px 0 0;
+  background: linear-gradient(to top, #a18cd1 0%, #fbc2eb 100%);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  /* Transition chậm hơn để thấy rõ sự thay đổi */
+  transition: height 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+/* Màu sắc Top 3 */
+.rank-1 .chart-bar {
+  background: linear-gradient(0deg, #f6d365 0%, #fda085 100%);
+}
+
+.rank-2 .chart-bar {
+  background: linear-gradient(0deg, #84fab0 0%, #8fd3f4 100%);
+}
+
+.rank-3 .chart-bar {
+  background: linear-gradient(0deg, #e0c3fc 0%, #8ec5fc 100%);
+}
+
+/* Điểm số */
+.score-float {
+  position: absolute;
+  top: -35px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 1.1rem;
+}
+
+.medal-icon {
+  font-size: 2rem;
+  margin-top: -15px;
+  z-index: 10;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+}
+
+/* --- FIX LỖI TÊN DÀI LỆCH CỘT --- */
+.bar-label-container {
+  height: 70px;
+  /* Chiều cao cố định cho phần tên */
+  display: flex;
+  align-items: flex-start;
+  /* Căn chữ lên trên cùng của box */
+  justify-content: center;
+  width: 100%;
+  padding-top: 10px;
+  overflow: hidden;
+}
+
+.bar-label {
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  font-size: 0.85rem;
+  text-align: center;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  /* Tối đa 3 dòng */
+  -webkit-box-orient: vertical;
+}
+
+/* --- ANT DESIGN OVERRIDES --- */
+.ant-btn-primary {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  height: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(90deg, #764ba2 0%, #667eea 100%);
+  transform: translateY(-2px);
+}
+
+.ant-table {
+  background: transparent !important;
+}
+
+.ant-table-thead>tr>th {
+  background: rgba(255, 255, 255, 0.5) !important;
+  font-weight: 700;
+}
+
+.ant-table-tbody>tr>td {
+  font-weight: 500;
+}
+
+.ant-table-tbody>tr:hover>td {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .title-gradient {
+    font-size: 1.5rem !important;
+  }
+
+  .chart-container {
+    gap: 8px;
+    height: 400px;
+  }
+
+  .chart-bar-wrapper {
+    width: 18vw;
+  }
+
+  .bar-label {
+    font-size: 0.65rem;
+  }
+
+  .score-float {
+    font-size: 0.9rem;
+    top: -25px;
+  }
+
+  .medal-icon {
+    font-size: 1.5rem;
+  }
+
+  .clb-logo {
+    width: 90px;
+    height: 90px;
+  }
+
+  .bar-label-container {
+    height: 50px;
+  }
+}
