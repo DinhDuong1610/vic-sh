@@ -186,6 +186,7 @@ function App() {
                     localStorage.setItem(`voted_${user.msv}`, 'true');
                     messageApi.success("Đã gửi vote thành công!");
                     setScreen('WAITING');
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 } catch (e) {
                     messageApi.error("Lỗi mạng, vui lòng thử lại!");
                 } finally {
