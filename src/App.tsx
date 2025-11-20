@@ -98,7 +98,7 @@ function App() {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const fakeScores: any = {};
                 realGroups.forEach(g => {
-                    fakeScores[g.tenNhom] = Math.random() * 90 + 10;
+                    fakeScores[g.tenNhom] = Math.floor(Math.random() * 90) + 10;
                 });
                 setDisplayScores(fakeScores);
             } else {
