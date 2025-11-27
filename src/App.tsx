@@ -45,16 +45,19 @@ function App() {
     const [messageApi, messageContextHolder] = message.useMessage();
 
     useEffect(() => {
+        const today = getTodayDate();
         const savedMSV = localStorage.getItem('user_msv');
         const savedName = localStorage.getItem('user_name');
         const hasVoted = localStorage.getItem(`voted_${savedMSV}`);
-
-        if (savedMSV && screen === 'LOGIN') {
-            setUser({ name: savedName, msv: savedMSV });
-            if (hasVoted) {
-                setScreen('WAITING');
-            } else {
-                setScreen('MENU');
+        const savedLoginDate = localStorage.getItem('last_login_date');
+        if (savedLoginDate === today) {
+            if (savedMSV && screen === 'LOGIN') {
+                setUser({ name: savedName, msv: savedMSV });
+                if (hasVoted) {
+                    setScreen('WAITING');
+                } else {
+                    setScreen('MENU');
+                }
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,6 +68,14 @@ function App() {
         return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
+
+    const getTodayDate = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
     const checkDataStatus = async () => {
         try {
