@@ -341,7 +341,7 @@ function App() {
                                         <div style={{ flex: 1 }}>
                                             <Tag color="blue" style={{ fontSize: '1rem', padding: '4px 10px', marginBottom: 10 }}>#{idx + 1}</Tag>
                                             <Title level={4} style={{ margin: '5px 0', color: '#333', minHeight: '3em' }}>{g.tenNhom}</Title>
-                                            <Text type="secondary" italic><RocketOutlined /> {g.deTai}</Text>
+                                            {/* <Text type="secondary" italic><RocketOutlined /> {g.deTai}</Text> */}
                                         </div>
                                         <Button type="primary" shape="round" size="large"
                                             icon={<CheckCircleOutlined />}
