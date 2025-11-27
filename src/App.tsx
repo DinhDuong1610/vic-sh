@@ -143,6 +143,8 @@ function App() {
             messageApi.success("Đăng nhập thành công!");
 
             const votedKey = `voted_${values.msv}`;
+            localStorage.setItem('votedKey', 'false');
+
             if (localStorage.getItem(votedKey)) {
                 setScreen('WAITING');
             } else {
