@@ -136,6 +136,8 @@ function App() {
                 mode: "no-cors"
             });
             setUser(values);
+            const today = getTodayDate();
+            localStorage.setItem('last_login_date', today);
             localStorage.setItem('user_msv', values.msv);
             localStorage.setItem('user_name', values.name);
             messageApi.success("Đăng nhập thành công!");
