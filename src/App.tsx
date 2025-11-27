@@ -145,11 +145,12 @@ function App() {
             const votedKey = `voted_${values.msv}`;
             localStorage.setItem(votedKey, 'false');
 
-            if (localStorage.getItem(votedKey)) {
-                setScreen('WAITING');
-            } else {
-                setScreen('MENU');
-            }
+            // if (localStorage.getItem(votedKey)) {
+            //     setScreen('WAITING');
+            // } else {
+            //     setScreen('MENU');
+            // }
+            setScreen('MENU');
             checkDataStatus();
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
