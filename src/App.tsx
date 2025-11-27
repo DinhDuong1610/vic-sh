@@ -157,10 +157,10 @@ function App() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.clear();
-        window.location.reload();
-    };
+    // const handleLogout = () => {
+    //     localStorage.clear();
+    //     window.location.reload();
+    // };
 
     const handleEnterBCN = () => {
         const code = prompt("Nhập mã BCN");
@@ -321,7 +321,7 @@ function App() {
                             </Card>
                         </Col>
                     </Row>
-                    <Button type="text" icon={<LogoutOutlined />} style={{ color: 'rgba(255,255,255,0.7)', marginTop: 30 }} onClick={handleLogout}>Đăng xuất</Button>
+                    {/* <Button type="text" icon={<LogoutOutlined />} style={{ color: 'rgba(255,255,255,0.7)', marginTop: 30 }} onClick={handleLogout}>Đăng xuất</Button> */}
                 </div>
             )}
 
@@ -394,7 +394,6 @@ function App() {
                             className="grading-table"
                             columns={[
                                 { title: 'Nhóm', dataIndex: 'tenNhom', key: 'tenNhom', render: t => <b style={{ fontSize: '1rem' }}>{t}</b> },
-                                { title: 'Đề tài', dataIndex: 'deTai', key: 'deTai', responsive: ['md'] },
                                 {
                                     title: 'Điểm (0-10)', key: 'score', width: 150,
                                     render: (_, record) => (
