@@ -59,23 +59,34 @@ function App() {
         const savedMSV = localStorage.getItem('user_msv');
         const savedName = localStorage.getItem('user_name');
 
-        // Logic mới: Lấy ngày hôm nay
+        // 1. Kiểm tra ngày đăng nhập
+        const lastLoginDate = localStorage.getItem('last_login_date');
         const todayStr = getTodayString();
-        // Key check vote sẽ bao gồm cả MSV và NGÀY (voted_123_2023-11-20)
+
+        // 2. Kiểm tra trạng thái vote hôm nay
         const voteKey = `voted_${savedMSV}_${todayStr}`;
         const hasVotedToday = localStorage.getItem(voteKey);
 
-        if (savedMSV && screen === 'LOGIN') {
+        // LOGIC MỚI: Phải có MSV VÀ Ngày đăng nhập phải trùng hôm nay
+        if (savedMSV && lastLoginDate === todayStr) {
             setUser({ name: savedName, msv: savedMSV });
 
-            // Nếu hôm nay đã vote -> WAITING, nếu chưa -> MENU
             if (hasVotedToday === 'true') {
                 setScreen('WAITING');
             } else {
                 setScreen('MENU');
             }
+        } else {
+            // Nếu đã qua ngày mới hoặc chưa đăng nhập -> Xóa session cũ -> Về Login
+            if (savedMSV && lastLoginDate !== todayStr) {
+                // Chỉ xóa thông tin đăng nhập, giữ lại lịch sử vote (nếu muốn) 
+                // hoặc xóa user session để bắt đăng nhập lại
+                localStorage.removeItem('user_msv');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('last_login_date');
+            }
+            setScreen('LOGIN');
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -146,12 +157,14 @@ function App() {
             });
             setUser(values);
 
-            // Lưu thông tin đăng nhập (Cố định, không cần xóa)
+            // LƯU THÔNG TIN SESSION + NGÀY ĐĂNG NHẬP
             localStorage.setItem('user_msv', values.msv);
             localStorage.setItem('user_name', values.name);
+            localStorage.setItem('last_login_date', getTodayString()); // <-- QUAN TRỌNG: Lưu ngày đăng nhập
+
             messageApi.success("Đăng nhập thành công!");
 
-            // Check trạng thái vote CỦA HÔM NAY
+            // Check trạng thái vote
             const todayStr = getTodayString();
             const voteKey = `voted_${values.msv}_${todayStr}`;
 
@@ -170,10 +183,9 @@ function App() {
     };
 
     const handleLogout = () => {
-        // Chỉ xóa thông tin session, giữ lại lịch sử vote (để tránh cheat vote lại trong ngày)
-        // Tuy nhiên ở đây xóa hết cũng được vì key voted có chứa MSV rồi
         localStorage.removeItem('user_msv');
         localStorage.removeItem('user_name');
+        localStorage.removeItem('last_login_date');
         window.location.reload();
     };
 
@@ -214,11 +226,9 @@ function App() {
                         mode: "no-cors"
                     });
 
-                    // --- LOGIC LƯU VOTE THEO NGÀY ---
                     const todayStr = getTodayString();
                     const voteKey = `voted_${user.msv}_${todayStr}`;
                     localStorage.setItem(voteKey, 'true');
-                    // -------------------------------
 
                     messageApi.success("Đã gửi vote thành công!");
                     setScreen('WAITING');
@@ -366,7 +376,7 @@ function App() {
                                         </div>
                                         <Button type="primary" shape="round" size="large"
                                             icon={<CheckCircleOutlined />}
-                                            loading={votingGroup === g.tenNhom}
+                                            loading={votingGroup === g.tenNhom} // Chỉ xoay nút của nhóm này
                                             onClick={() => handleVote(g.tenNhom)}
                                             style={{ marginTop: 20, width: '100%' }}>
                                             BÌNH CHỌN
@@ -421,6 +431,7 @@ function App() {
                                     render: (_, record) => (
                                         <InputNumber min={0} max={10} step={0.1} size="large" style={{ width: '100%' }}
                                             placeholder="Nhập điểm"
+                                            // FIX TS ERROR: Đảm bảo giá trị truyền vào là string hoặc rỗng
                                             value={bcnScores[record.tenNhom] ? Number(bcnScores[record.tenNhom]) : undefined}
                                             onChange={(val) => handleScoreChange(record.tenNhom, val === null ? '' : String(val))}
                                         />
