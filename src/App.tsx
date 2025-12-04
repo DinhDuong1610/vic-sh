@@ -182,12 +182,12 @@ function App() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('user_msv');
-        localStorage.removeItem('user_name');
-        localStorage.removeItem('last_login_date');
-        window.location.reload();
-    };
+    // const handleLogout = () => {
+    //     localStorage.removeItem('user_msv');
+    //     localStorage.removeItem('user_name');
+    //     localStorage.removeItem('last_login_date');
+    //     window.location.reload();
+    // };
 
     const handleEnterBCN = () => {
         const code = prompt("Nhập mã BCN");
@@ -352,7 +352,7 @@ function App() {
                             </Card>
                         </Col>
                     </Row>
-                    <Button type="text" icon={<LogoutOutlined />} style={{ color: 'rgba(255,255,255,0.7)', marginTop: 30 }} onClick={handleLogout}>Đăng xuất</Button>
+                    {/* <Button type="text" icon={<LogoutOutlined />} style={{ color: 'rgba(255,255,255,0.7)', marginTop: 30 }} onClick={handleLogout}>Đăng xuất</Button> */}
                 </div>
             )}
 
