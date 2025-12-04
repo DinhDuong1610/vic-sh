@@ -75,11 +75,13 @@ function App() {
                 setScreen('MENU');
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         const interval = setInterval(checkDataStatus, 5000);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
 
     const checkDataStatus = async () => {
