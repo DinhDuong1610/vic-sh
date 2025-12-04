@@ -9,6 +9,7 @@ import {
     TrophyOutlined, BarChartOutlined, LogoutOutlined
 } from '@ant-design/icons';
 import './App.css';
+
 import Logo from './assets/logo.png';
 
 const { Title, Text } = Typography;
@@ -25,6 +26,15 @@ interface Group {
     xepHang: number;
     diemBGK?: number;
 }
+
+// --- HÀM LẤY NGÀY HIỆN TẠI (FORMAT: YYYY-MM-DD) ---
+const getTodayString = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 function App() {
     const [screen, setScreen] = useState<Screen>('LOGIN');
@@ -44,38 +54,33 @@ function App() {
     const [modal, modalContextHolder] = Modal.useModal();
     const [messageApi, messageContextHolder] = message.useMessage();
 
+    // --- CHECK LOGIN & VOTE STATUS KHI MỞ APP ---
     useEffect(() => {
-        const today = getTodayDate();
         const savedMSV = localStorage.getItem('user_msv');
         const savedName = localStorage.getItem('user_name');
-        const hasVoted = localStorage.getItem(`voted_${savedMSV}`);
-        const savedLoginDate = localStorage.getItem('last_login_date');
-        if (savedLoginDate === today) {
-            if (savedMSV && screen === 'LOGIN') {
-                setUser({ name: savedName, msv: savedMSV });
-                if (hasVoted) {
-                    setScreen('WAITING');
-                } else {
-                    setScreen('MENU');
-                }
+
+        // Logic mới: Lấy ngày hôm nay
+        const todayStr = getTodayString();
+        // Key check vote sẽ bao gồm cả MSV và NGÀY (voted_123_2023-11-20)
+        const voteKey = `voted_${savedMSV}_${todayStr}`;
+        const hasVotedToday = localStorage.getItem(voteKey);
+
+        if (savedMSV && screen === 'LOGIN') {
+            setUser({ name: savedName, msv: savedMSV });
+
+            // Nếu hôm nay đã vote -> WAITING, nếu chưa -> MENU
+            if (hasVotedToday === 'true') {
+                setScreen('WAITING');
+            } else {
+                setScreen('MENU');
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         const interval = setInterval(checkDataStatus, 5000);
         return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
-
-    const getTodayDate = () => {
-        const d = new Date();
-        const year = d.getFullYear();
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
 
     const checkDataStatus = async () => {
         try {
@@ -91,7 +96,7 @@ function App() {
             }
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
-            // Handle error silently
+            // Silent error
         }
     };
 
@@ -126,6 +131,8 @@ function App() {
         }, 700);
     };
 
+    // --- ACTIONS ---
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleLogin = async (values: any) => {
         setLoading(true);
@@ -136,21 +143,21 @@ function App() {
                 mode: "no-cors"
             });
             setUser(values);
-            const today = getTodayDate();
-            localStorage.setItem('last_login_date', today);
+
+            // Lưu thông tin đăng nhập (Cố định, không cần xóa)
             localStorage.setItem('user_msv', values.msv);
             localStorage.setItem('user_name', values.name);
             messageApi.success("Đăng nhập thành công!");
 
-            const votedKey = `voted_${values.msv}`;
-            localStorage.setItem(votedKey, 'false');
+            // Check trạng thái vote CỦA HÔM NAY
+            const todayStr = getTodayString();
+            const voteKey = `voted_${values.msv}_${todayStr}`;
 
-            // if (localStorage.getItem(votedKey)) {
-            //     setScreen('WAITING');
-            // } else {
-            //     setScreen('MENU');
-            // }
-            setScreen('MENU');
+            if (localStorage.getItem(voteKey) === 'true') {
+                setScreen('WAITING');
+            } else {
+                setScreen('MENU');
+            }
             checkDataStatus();
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
@@ -160,10 +167,13 @@ function App() {
         }
     };
 
-    // const handleLogout = () => {
-    //     localStorage.clear();
-    //     window.location.reload();
-    // };
+    const handleLogout = () => {
+        // Chỉ xóa thông tin session, giữ lại lịch sử vote (để tránh cheat vote lại trong ngày)
+        // Tuy nhiên ở đây xóa hết cũng được vì key voted có chứa MSV rồi
+        localStorage.removeItem('user_msv');
+        localStorage.removeItem('user_name');
+        window.location.reload();
+    };
 
     const handleEnterBCN = () => {
         const code = prompt("Nhập mã BCN");
@@ -187,7 +197,7 @@ function App() {
             content: (
                 <div style={{ marginTop: 10 }}>
                     Bạn chắc chắn muốn vote cho nhóm <b style={{ color: '#722ed1', fontSize: '1.1rem' }}>{groupName}</b>?<br />
-                    <i style={{ color: '#888' }}>Lưu ý: Bạn chỉ được vote 1 lần duy nhất.</i>
+                    <i style={{ color: '#888' }}>Lưu ý: Mỗi ngày bạn chỉ được vote 1 lần.</i>
                 </div>
             ),
             okText: 'VOTE LUÔN',
@@ -201,7 +211,13 @@ function App() {
                         body: JSON.stringify({ action: 'VOTE', groupName }),
                         mode: "no-cors"
                     });
-                    localStorage.setItem(`voted_${user.msv}`, 'true');
+
+                    // --- LOGIC LƯU VOTE THEO NGÀY ---
+                    const todayStr = getTodayString();
+                    const voteKey = `voted_${user.msv}_${todayStr}`;
+                    localStorage.setItem(voteKey, 'true');
+                    // -------------------------------
+
                     messageApi.success("Đã gửi vote thành công!");
                     setScreen('WAITING');
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -301,9 +317,9 @@ function App() {
             {screen === 'MENU' && (
                 <div className="animate__animated animate__fadeInUp">
                     <AppHeader />
-                    {/* <Title level={3} style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
-                        Xin chào, {user?.name}
-                    </Title> */}
+                    <Title level={3} style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                        Xin chào, {user?.name} 👋
+                    </Title>
                     <Row gutter={[20, 20]} justify="center" style={{ marginTop: 30 }}>
                         <Col xs={24} md={10}>
                             <Card hoverable className="card-glass" onClick={() => setScreen('VOTE_SELECTION')} style={{ cursor: 'pointer', height: '100%' }}>
@@ -324,7 +340,7 @@ function App() {
                             </Card>
                         </Col>
                     </Row>
-                    {/* <Button type="text" icon={<LogoutOutlined />} style={{ color: 'rgba(255,255,255,0.7)', marginTop: 30 }} onClick={handleLogout}>Đăng xuất</Button> */}
+                    <Button type="text" icon={<LogoutOutlined />} style={{ color: 'rgba(255,255,255,0.7)', marginTop: 30 }} onClick={handleLogout}>Đăng xuất</Button>
                 </div>
             )}
 
@@ -344,11 +360,11 @@ function App() {
                                         <div style={{ flex: 1 }}>
                                             <Tag color="blue" style={{ fontSize: '1rem', padding: '4px 10px', marginBottom: 10 }}>#{idx + 1}</Tag>
                                             <Title level={4} style={{ margin: '5px 0', color: '#333', minHeight: '3em' }}>{g.tenNhom}</Title>
-                                            {/* <Text type="secondary" italic><RocketOutlined /> {g.deTai}</Text> */}
+                                            <Text type="secondary" italic><RocketOutlined /> {g.deTai}</Text>
                                         </div>
                                         <Button type="primary" shape="round" size="large"
                                             icon={<CheckCircleOutlined />}
-                                            loading={votingGroup === g.tenNhom} // Chỉ xoay nút của nhóm này
+                                            loading={votingGroup === g.tenNhom}
                                             onClick={() => handleVote(g.tenNhom)}
                                             style={{ marginTop: 20, width: '100%' }}>
                                             BÌNH CHỌN
@@ -397,13 +413,14 @@ function App() {
                             className="grading-table"
                             columns={[
                                 { title: 'Nhóm', dataIndex: 'tenNhom', key: 'tenNhom', render: t => <b style={{ fontSize: '1rem' }}>{t}</b> },
+                                { title: 'Đề tài', dataIndex: 'deTai', key: 'deTai', responsive: ['md'] },
                                 {
                                     title: 'Điểm (0-10)', key: 'score', width: 150,
                                     render: (_, record) => (
                                         <InputNumber min={0} max={10} step={0.1} size="large" style={{ width: '100%' }}
                                             placeholder="Nhập điểm"
-                                            value={Number(bcnScores[record.tenNhom]) || 0}
-                                            onChange={(val) => handleScoreChange(record.tenNhom, String(val))}
+                                            value={bcnScores[record.tenNhom] ? Number(bcnScores[record.tenNhom]) : undefined}
+                                            onChange={(val) => handleScoreChange(record.tenNhom, val === null ? '' : String(val))}
                                         />
                                     )
                                 }
